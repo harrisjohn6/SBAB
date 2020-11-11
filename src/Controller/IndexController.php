@@ -5,61 +5,37 @@ namespace App\Controller;
 
 
 use App\Entity\Users;
-use DateTime;
-use Symfony\Bridge\Monolog\Logger;
+use App\Form\LoginFormType;
+use http\Env\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class IndexController extends AbstractController
 {
     /**
-     * @return Response
-     * @Route("/Index", methods={"GET"})
+     * @Route("/index", methods={"GET"})
      */
-    public function getIndex(): Response
+    public function getIndex()
     {
-        return $this->render('index.html.twig');
+        $user = new Users();
+        $form = $this->createForm(LoginFormType::class, $user);
+
+        return $this->render('index.html.twig', ['loginForm' => $form->createView()]);
     }
 
-    /**
-     * @Route("/Index", methods={"POST"})
-     * @return Response
-     */
-    public function postLogin(): Response
+    public function login(Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
-        $em = $this->getDoctrine()->getManager();
-        $usersRepository = $em->getRepository(Users::class);
-        $postPassword = $_POST['password'];
-        $postEmailAddress = $_POST['emailAddress'];
+        $user = new Users();
+        $form = $this->createForm(LoginFormType::class, $user);
+        $form->handleRequest($request);
 
-        $foundUser = $usersRepository->findOneBy(['emailAddress' => $postEmailAddress]);
-
-        if ($foundUser == null) {
-
-            return $this->render('index.html.twig');
-
-        } else {
-            $foundUserEmail = $foundUser->getEmailAddress();
-            $foundUserPassword = $foundUser->getPassword();
-
-            if ($foundUserEmail == $postEmailAddress && $foundUserPassword == $postPassword) {
-                $foundUser->setBadLoginCount(0);
-                $foundUser->setLastLoginDate(DateTime::createFromFormat('Y-m-d', date('Y-m-d')));
-                $em->persist($foundUser);
-                $em->flush();
-
-                return $this->redirect('/welcome');
-
-            } elseif ($foundUser == $postEmailAddress && $foundUserPassword != $postPassword) {
-                $oldBadLoginCount = $foundUser->getBadLoginCount();
-                $newBadLoginCount = $oldBadLoginCount + 1;
-                Logger::DEBUG('Bad Login Count should be set to : ' . $newBadLoginCount);
-                $foundUser->setBadLoginCount($newBadLoginCount);
-                $em->persist($foundUser);
-                $em->flush();
-            }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $formPassword = $request->getForm($form)->get('password');
+            $formEmailAddress = $request->getForm($form)->get('emailAddress');
+       
         }
-        return $this->redirect('/Index');
     }
+
+
 }

@@ -4,28 +4,28 @@
 {% block title %} Welcome to my page {% endblock %}
 
 {% block body %}
-    <form action="/Index" method="post">
-        <div class="imgcontainer">
-            <img src="{{ asset('build/img_avatar2.png') }}" alt="Avatar" class="avatar">
-        </div>
+
+    <form>
 
         <div class="container">
-            <label for="emailAddress"><b>Email Address</b></label>
-            <input type="text" placeholder="Enter Email Address" name="emailAddress" required>
+            <div class="imgcontainer">
+                <img src="{{ asset('build/img_avatar2.c9a1bebd.png') }}" class='avatar'>
+            </div>
 
-            <label for="password"><b>Password</b></label>
-            <input type="password" placeholder="Enter Password" name="password" required>
+            {{ form_start(loginForm) }}
+
+            {{ form_row(loginForm.emailAddress) }}
+            {{ form_row(loginForm.password) }}
+
+            {{ form_end(loginForm) }}
 
             <button type="submit">Login</button>
-            <label>
-                <input type="checkbox" checked="checked" name="rememberMe">Remember Me
-            </label>
-        </div>
 
-        <div class="container" style="background-color: #f1f1f1">
-            <button type="button" class="cancelbtn">Cancel</button>
-            <span class="psw">Forgot <a href="#">password?</a> </span>
-        </div>
+            <div class="btncontainer">
+                <button type="button" class="registerbtn">Register</button>
+                <button type="button" class="cancelbtn">Forgot Password</button>
+            </div>
 
     </form>
+    </div>
 {% endblock %}
